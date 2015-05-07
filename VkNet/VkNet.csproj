@@ -228,6 +228,7 @@
     <Compile Include="VkApi.cs" />
     <Compile Include="Utils\VkErrors.cs" />
     <Compile Include="Utils\VkAuthorization.cs" />
+    <Compile Include="Utils\VkApiExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Utils\VkResponseToManualEnumCastsGenerator.tt">
