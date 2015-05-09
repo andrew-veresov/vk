@@ -70,7 +70,7 @@
             VkResponseArray response = _vk.Call("users.search", parameters);
 
             itemsCount = response[0];
-
+            _vk.CountFromLastResponse = itemsCount;
             return response.Skip(1).ToReadOnlyCollectionOf<User>(r => r);
         }
 

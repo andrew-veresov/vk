@@ -178,7 +178,29 @@ namespace VkNet.Categories
 		}
 
 
-		/// <summary>
+	    /// <summary>
+	    /// Возвращает список всех пользователей, находящихся в черном списке. 
+	    /// </summary>
+	    /// <returns>Возвращает набор объектов пользователей, находящихся в черном списке. </returns>
+	    [Pure]
+	    [ApiVersion("5.21")]
+	    public IEnumerable<User> GetAllBanned()
+	    {
+	        const int count = 200;
+            var i = 0;
+            var result = new List<User>();
+
+            do
+            {
+                int total;
+                var currentItems = GetBanned(out total, i * count, count);
+                if (currentItems != null) result.AddRange(currentItems);
+            } while (++i * count < (_vk.CountFromLastResponse ?? 0));
+
+            return result.ToReadOnlyCollection();
+        }
+
+	    /// <summary>
 		/// Возвращает список пользователей, находящихся в черном списке. 
 		/// </summary>
 		/// <param name="total">Возвращает общее количество находящихся в черном списке пользователей.</param>

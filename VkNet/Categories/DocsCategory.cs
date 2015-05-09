@@ -23,6 +23,31 @@
         }
 
         /// <summary>
+        /// Возвращает расширенную информацию о всех документах пользователя или сообщества.
+        /// </summary>
+        /// <param name="owner_id">Идентификатор пользователя или сообщества, которому принадлежат документы. Целое число, по умолчанию идентификатор текущего пользователя.</param>
+        /// <returns>После успешного выполнения возвращает список объектов документов.</returns>
+        /// <remarks>
+        /// Страница документации ВКонтакте <see href="http://vk.com/dev/docs.get"/>.
+        /// </remarks>
+        [Pure]
+        [ApiVersion("5.28")]
+        public ReadOnlyCollection<Document> GetAll(long? owner_id = null)
+        {
+            const int count = 50;
+            var i = 0;
+            var result = new List<Document>();
+
+            do
+            {
+                var currentItems = Get(count, i * count, owner_id);
+                if (currentItems != null) result.AddRange(currentItems);
+            } while (++i * count < (_vk.CountFromLastResponse ?? 0));
+
+            return result.ToReadOnlyCollection();
+        }
+
+        /// <summary>
         /// Возвращает расширенную информацию о документах пользователя или сообщества.
         /// </summary>
         /// <param name="count">Количество документов, информацию о которых нужно вернуть. По умолчанию — все документы.</param>

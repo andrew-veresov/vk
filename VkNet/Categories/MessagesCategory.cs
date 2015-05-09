@@ -428,7 +428,7 @@ namespace VkNet.Categories
             VkResponseArray response = _vk.Call("messages.search", parameters);
 
             totalCount = response[0];
-
+            _vk.CountFromLastResponse = totalCount;
             return response.Skip(1).ToReadOnlyCollectionOf<Message>(r => r);
         }
 
