@@ -292,7 +292,7 @@
         /// <param name="query">Строка поискового запроса.</param>
         /// <param name="sort">Вид сортировки.</param>
         /// <param name="isHd">Если true, то поиск производится только по видеозаписям высокого качества.</param>
-        /// <param name="isAdult">Фильтр «Безопасный поиск».</param>
+        /// <param name="isAdult">Фильтр "Безопасный поиск".</param>
         /// <param name="filters">Список критериев, по которым требуется отфильтровать видео.</param>
         /// <param name="isSearchOwn">Искать по видеозаписям пользователя.</param>
         /// <returns>После успешного выполнения возвращает список объектов видеозаписей.</returns>
@@ -323,7 +323,7 @@
         /// <param name="query">Строка поискового запроса.</param>
         /// <param name="sort">Вид сортировки.</param>
         /// <param name="isHd">Если true, то поиск производится только по видеозаписям высокого качества.</param>
-        /// <param name="isAdult">Фильтр «Безопасный поиск».</param>
+        /// <param name="isAdult">Фильтр "Безопасный поиск".</param>
         /// <param name="filters">Список критериев, по которым требуется отфильтровать видео.</param>
         /// <param name="isSearchOwn">Искать по видеозаписям пользователя.</param>
         /// <param name="count">
