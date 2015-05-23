@@ -9,12 +9,13 @@
     using Enums;
     using Model;
     using Utils;
+    using Extended;
 
     using System.Text;
     using Enums.Filters;
     using Enums.SafetyEnums;
     using Model.Attachments;
-
+    
     /// <summary>
     /// Методы для работы со стеной пользователя.
     /// </summary>
@@ -22,37 +23,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public WallCategoryExtended Ex { get; private set; }
+
         internal WallCategory(VkApi vk)
         {
             _vk = vk;
-        }
-
-        /// <summary>
-        /// Возвращает список всех записей со стены пользователя или сообщества. 
-        /// </summary>
-        /// <param name="ownerId">Идентификатор пользователя. Чтобы получить записи со стены группы (публичной страницы, встречи), укажите её идентификатор 
-        /// со знаком "минус": например, owner_id=-1 соответствует группе с идентификатором 1.</param>
-        /// <param name="filter">Типы сообщений, которые необходимо получить (по умолчанию возвращаются все сообщения).</param>
-        /// <returns>В случае успеха возвращается запрошенный список записей со стены.</returns>
-        /// <remarks>
-        /// Страница документации ВКонтакте <see href="http://vk.com/dev/wall.get"/>.
-        /// </remarks>
-        [Pure]
-        [ApiVersion("5.9")]
-        public ReadOnlyCollection<Post> GetAll(long ownerId, WallFilter filter = WallFilter.All)
-        {
-            const int count = 100;
-            var i = 0;
-            var allPosts = new List<Post>();
-
-            do
-            {
-                int totalCount;
-                var currentPosts = Get(ownerId, out totalCount, count, i * count, filter);
-                if (currentPosts != null) allPosts.AddRange(currentPosts);
-            } while (++i * count < (_vk.CountFromLastResponse ?? 0));
-
-            return allPosts.ToReadOnlyCollection();
+            Ex = new WallCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -119,45 +98,6 @@
 			groups = response["groups"].ToReadOnlyCollectionOf<Group>(r => r);
 		    return response["count"];
 		}
-
-
-        /// <summary>
-        /// Возвращает список всех комментариев к записи на стене пользователя. 
-        /// </summary>
-        /// <param name="ownerId">Идентификатор пользователя, на чьей стене находится запись, к которой необходимо получить комментарии.</param>
-        /// <param name="postId">Идентификатор записи на стене пользователя.</param>
-        /// <param name="sort">Порядок сортировки комментариев (по умолчанию хронологический).</param>
-        /// <param name="needLikes">Признак нужно ли возвращать поле Likes в комментариях.</param>
-        /// <param name="previewLength">Количество символов, по которому нужно обрезать комментарии. Если указано 0, то комментарии не обрезаются. 
-        /// Обратите внимание, что комментарии обрезаются по словам.</param>
-        /// <returns>
-        /// Список комментариев к записи на стене пользователя.
-        /// </returns>
-        /// <remarks>
-        /// Страница документации ВКонтакте <see href="http://vk.com/dev/wall.getComments"/>.
-        /// </remarks>
-        [Pure]
-        [ApiVersion("5.9")]
-        public ReadOnlyCollection<Comment> GetAllComments(
-            long ownerId,
-            long postId,
-            CommentsSort sort = null,
-            bool needLikes = false,
-            int previewLength = 0)
-        {
-            const int count = 100;
-            var i = 0;
-            var allComments= new List<Comment>();
-
-            do
-            {
-                int totalCount;
-                var currentComments = GetComments(ownerId, postId, out totalCount, sort, needLikes, count, i * count, previewLength);
-                if (currentComments != null) allComments.AddRange(currentComments);
-            } while (++i * count < (_vk.CountFromLastResponse ?? 0));
-
-            return allComments.ToReadOnlyCollection();
-        }
 
         /// <summary>
         /// Возвращает список комментариев к записи на стене пользователя. 
@@ -279,8 +219,7 @@
 			return response.ToReadOnlyCollectionOf<Post>(x => x);
 		}
 
-
-	    /// <summary>
+        /// <summary>
 	    /// Публикует новую запись на своей или чужой стене. 
 	    /// Данный метод позволяет создать новую запись на стене, а также опубликовать предложенную новость или отложенную запись. 
 	    /// </summary>
@@ -343,8 +282,7 @@
 			return  _vk.Call("wall.post", parameters)["post_id"];
 		}
 
-
-	    /// <summary>
+        /// <summary>
 		/// Копирует объект на стену пользователя или сообщества. 
 	    /// </summary>
 		/// <param name="object">Строковый идентификатор объекта, который необходимо разместить на стене, например, wall66748_3675 или wall-1_340364.</param>

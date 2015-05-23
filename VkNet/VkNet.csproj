@@ -56,7 +56,22 @@
   <ItemGroup>
     <Compile Include="Categories\AccountCategory.cs" />
     <Compile Include="Categories\AudioCategory.cs" />
+    <Compile Include="Categories\Extended\AudioCategoryExtended.cs" />
     <Compile Include="Categories\DocsCategory.cs" />
+    <Compile Include="Categories\Extended\AccountCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\DatabaseCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\DocsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\FaveCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\FriendsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\GroupsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\LikesCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\MessagesCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\PhotoCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\StatusCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\UsersCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\UtilsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\VideoCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\WallCategoryExtended.cs" />
     <Compile Include="Categories\LikesCategory.cs" />
     <Compile Include="Categories\PhotoCategory.cs">
       <SubType>Code</SubType>

@@ -4,11 +4,12 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using JetBrains.Annotations;
+    
+    using Model.Attachments;
 
     using Utils;
-
-    using Model.Attachments;
-    using VkNet.Model;
+    using Model;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с документами (получение списка, загрузка, удаление и т.д.)
@@ -17,34 +18,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public DocsCategoryExtended Ex { get; private set; }
+
         internal DocsCategory(VkApi vk)
         {
             _vk = vk;
-        }
-
-        /// <summary>
-        /// Возвращает расширенную информацию о всех документах пользователя или сообщества.
-        /// </summary>
-        /// <param name="owner_id">Идентификатор пользователя или сообщества, которому принадлежат документы. Целое число, по умолчанию идентификатор текущего пользователя.</param>
-        /// <returns>После успешного выполнения возвращает список объектов документов.</returns>
-        /// <remarks>
-        /// Страница документации ВКонтакте <see href="http://vk.com/dev/docs.get"/>.
-        /// </remarks>
-        [Pure]
-        [ApiVersion("5.28")]
-        public ReadOnlyCollection<Document> GetAll(long? owner_id = null)
-        {
-            const int count = 50;
-            var i = 0;
-            var result = new List<Document>();
-
-            do
-            {
-                var currentItems = Get(count, i * count, owner_id);
-                if (currentItems != null) result.AddRange(currentItems);
-            } while (++i * count < (_vk.CountFromLastResponse ?? 0));
-
-            return result.ToReadOnlyCollection();
+            Ex = new DocsCategoryExtended(this, _vk);
         }
 
         /// <summary>

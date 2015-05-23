@@ -1,14 +1,14 @@
-﻿using VkNet.Enums.SafetyEnums;
-
-namespace VkNet.Categories
+﻿namespace VkNet.Categories
 {
     using System;
     using JetBrains.Annotations;
 
-    using Enums;
     using Model;
     using Utils;
+    using Extended;
 
+    using Enums.SafetyEnums;
+    
     /// <summary>
     /// Служебные методы.
     /// </summary>
@@ -16,9 +16,15 @@ namespace VkNet.Categories
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public UtilsCategoryExtended Ex { get; private set; }
+
         internal UtilsCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new UtilsCategoryExtended(this, _vk);
         }
 
         /// <summary>
