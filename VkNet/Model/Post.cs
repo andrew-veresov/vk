@@ -53,7 +53,7 @@
         public long? ReplyPostId { get; set; }
 
         /// <summary>
-        /// true, если запись была создана с опцией «Только для друзей», false в противном случае.
+        /// true, если запись была создана с опцией "Только для друзей", false в противном случае.
         /// </summary>
         public bool FriendsOnly { get; set; }
 
@@ -68,7 +68,7 @@
         public Likes Likes { get; set; }
 
         /// <summary>
-        /// Информация о репостах записи («Рассказать друзьям»). 
+        /// Информация о репостах записи ("Рассказать друзьям"). 
         /// </summary>
         public Reposts Reposts { get; set; }
 

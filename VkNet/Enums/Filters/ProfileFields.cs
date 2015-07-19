@@ -273,7 +273,7 @@ namespace VkNet.Enums.Filters
             Status | LastSeen | CommonCount | Relation | Relatives | Counters | Nickname | Timezone;
 
         /// <summary>
-        /// Для получения всех полей, вколючая недокументированные.
+        /// Для получения всех полей, включая недокументированные.
         /// </summary>
         public static readonly ProfileFields AllUndocumented = All | Language | OnlineMobile | OnlineApp | RelationPartner | 
             StandInLife | Interests | Music | Activities | Movies | Tv | Books | Games | About | Quotes | InvitedBy;

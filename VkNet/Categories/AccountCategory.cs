@@ -1,6 +1,4 @@
-﻿using VkNet.Enums.Filters;
-
-namespace VkNet.Categories
+﻿namespace VkNet.Categories
 {
     using System;
     using System.Collections.Generic;
@@ -9,20 +7,29 @@ namespace VkNet.Categories
     using JetBrains.Annotations;
     using Newtonsoft.Json.Linq;
 
+    using Enums.Filters;
+
     using Enums;
     using Model;
     using Utils;
+    using Extended;
 
-	/// <summary>
-	/// Методы этого класса позволяют производить действия с аккаунтом пользователя.
-	/// </summary>
-	public class AccountCategory
+    /// <summary>
+    /// Методы этого класса позволяют производить действия с аккаунтом пользователя.
+    /// </summary>
+    public class AccountCategory
 	{
 		private readonly VkApi _vk;
 
-		internal AccountCategory(VkApi vk)
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public AccountCategoryExtended Ex { get; private set; }
+
+        internal AccountCategory(VkApi vk)
 		{
 			_vk = vk;
+            Ex = new AccountCategoryExtended(this, _vk);
 		}
 
 
@@ -177,8 +184,7 @@ namespace VkNet.Categories
 			return _vk.Call("account.unbanUser", new VkParameters() { { "user_id", userId } });
 		}
 
-
-		/// <summary>
+        /// <summary>
 		/// Возвращает список пользователей, находящихся в черном списке. 
 		/// </summary>
 		/// <param name="total">Возвращает общее количество находящихся в черном списке пользователей.</param>

@@ -169,7 +169,7 @@ namespace VkNet.Model
         public bool IsVerified { get; set; }
 
         /// <summary>
-        /// Адрес сайта из поля «веб-сайт» в описании сообщества.
+        /// Адрес сайта из поля "веб-сайт" в описании сообщества.
         /// </summary>
         public string Site { get; set; }
 

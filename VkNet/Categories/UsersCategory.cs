@@ -6,10 +6,12 @@
     using System.Linq;
     using JetBrains.Annotations;
 
-    using Enums.Filters;
-    using Enums.SafetyEnums;
     using Model;
     using Utils;
+    using Extended;
+
+    using Enums.Filters;
+    using Enums.SafetyEnums;
 
     /// <summary>
     /// Методы для работы с информацией о пользователях.
@@ -18,9 +20,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public UsersCategoryExtended Ex { get; private set; }
+
         internal UsersCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new UsersCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -52,7 +60,7 @@
             VkResponseArray response = _vk.Call("users.search", parameters);
 
             itemsCount = response[0];
-
+            _vk.CountFromLastResponse = itemsCount;
             return response.Skip(1).ToReadOnlyCollectionOf<User>(r => r);
         }
 
@@ -98,8 +106,7 @@
 
             return 1 == Convert.ToInt32(response.ToString());
         }
-
-
+        
         /// <summary>
         /// Возвращает расширенную информацию о пользователе.
         /// </summary>
@@ -219,8 +226,6 @@
             return users.Count > 0 ? users[0] : null;
         }
 
-        
-            // todo add tests for subscriptions for users
         /// <summary>
         /// Возвращает список идентификаторов пользователей и групп, которые входят в список подписок пользователя.
         /// </summary>

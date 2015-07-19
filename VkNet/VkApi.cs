@@ -23,6 +23,10 @@
         internal const string InvalidAuthorization = "Invalid authorization";
         internal int _requestsPerSecond;
         internal int _minInterval;                  // Минимальное время, которое должно пройти между запросами чтобы не привысить кол-во запросов в секунду
+        internal int? _countFromLastResponse;       // Счетчик count, содержавшийся в последнем ответе
+
+        internal int _maxCaptchaRecognitionCount;   // Максимальное количество попыток распознавания капчи
+        internal ICaptchaSolver _captchaSolver;     // Обработчик распознавания капчи
 
         internal KeyValuePair<string, string>? _credentials;
         internal int _appId;
@@ -61,6 +65,40 @@
                 else
                     throw new ArgumentException("Value must be positive", "RequestsPerSecond");
             }
+        }
+
+        /// <summary>
+        /// Счетчик count, содержавшийся в последнем ответе, возвращаемом из <see cref="Call(string, VkParameters, bool)"/>
+        /// Сбрасывается в null, если в ответе не было поля "count".
+        /// </summary>
+        public int? CountFromLastResponse
+        {
+            get { return _countFromLastResponse; }
+            set
+            {
+                if ((value != null) && value < 0)
+                    throw new ArgumentException("Value must be positive", "CountFromLastResponse");
+                else
+                    _countFromLastResponse = value;
+            }
+        }
+
+        /// <summary>
+        /// Максимальное количество попыток распознавания капчи c помощью зарегистрированного обработчика.
+        /// </summary>
+        public int MaxCaptchaRecognitionCount
+        {
+            get { return _maxCaptchaRecognitionCount; }
+            set { _maxCaptchaRecognitionCount = value < 0 ? 0 : value; }
+        }
+
+        /// <summary>
+        /// Обработчик распознавания капчи
+        /// </summary>
+        public ICaptchaSolver CaptchaSolver
+        {
+            get { return _captchaSolver; }
+            set { _captchaSolver = value; }
         }
 
         /// <summary>
@@ -172,6 +210,7 @@
             Likes = new LikesCategory(this);
 			
             RequestsPerSecond = 3;
+            MaxCaptchaRecognitionCount = 5;
             AutoTokenRefresh = false;
         }
 
@@ -190,7 +229,35 @@
             _appId = appId;
             _settings = settings;
 
-            _authorize(appId, email, password, settings, captcha_sid, captcha_key);
+            var captchaRecognitionCount = MaxCaptchaRecognitionCount;
+            var numberOfRemainingAttempts = captchaRecognitionCount + 1;
+
+            long? captchaSid = captcha_sid;
+            string captchaKey = captcha_key;
+            var authorizationCompleted = false;
+
+            if (CaptchaSolver == null)
+            {
+                _authorize(appId, email, password, settings, captchaSid, captchaKey);
+            }
+            else
+            {
+                do
+                {
+                    try
+                    {
+                        _authorize(appId, email, password, settings, captchaSid, captchaKey);
+                        authorizationCompleted = true;
+                        return;
+                    }
+                    catch (CaptchaNeededException captchaNeededException)
+                    {
+                        if (numberOfRemainingAttempts <= captchaRecognitionCount) { CaptchaSolver?.CaptchaIsFalse(); }
+                        captchaSid = captchaNeededException.Sid;
+                        captchaKey = CaptchaSolver?.Solve(captchaNeededException.Img?.AbsoluteUri);
+                    }
+                } while (!(authorizationCompleted || --numberOfRemainingAttempts <= 0));
+            }
         }
 
         /// <summary>
@@ -271,19 +338,56 @@
 				//TODO: WARN: раскомментировать, исправив ошибки в существующем коде
 				//throw new InvalidParameterException("You must use ApiVersionAttribute except adding \"v\" parameter to VkParameters");
 		    }
-
+            
 			return Call(methodName, parameters, skipAuthorization);
 	    }
 
 	    private VkResponse Call(string methodName, VkParameters parameters,  bool skipAuthorization = false)
-        {
-            string answer = Invoke(methodName, parameters, skipAuthorization);
+	    {
+	        string answer = null;
 
-            JObject json = JObject.Parse(answer);
+            // Проверка на наличие обработчика капчи.
+	        if (CaptchaSolver == null)
+	            answer = Invoke(methodName, parameters, skipAuthorization);
+	        else
+	        {
+                var captchaRecognitionCount = MaxCaptchaRecognitionCount;
+                var numberOfRemainingAttempts = captchaRecognitionCount + 1;
+
+                long? captchaSid = null;
+                string captchaKey = null;
+                var authorizationCompleted = false;
+
+                do
+                {
+                    try
+                    {
+                        parameters.Add("captcha_sid", captchaSid);
+                        parameters.Add("captcha_key", captchaKey);
+                        answer = Invoke(methodName, parameters, skipAuthorization);
+
+                        authorizationCompleted = true;
+                        break;
+                    }
+                    catch (CaptchaNeededException captchaNeededException)
+                    {
+                        if (numberOfRemainingAttempts <= captchaRecognitionCount) { CaptchaSolver?.CaptchaIsFalse(); }
+                        captchaSid = captchaNeededException.Sid;
+                        captchaKey = CaptchaSolver?.Solve(captchaNeededException.Img?.AbsoluteUri);
+                    }
+                } while (!(authorizationCompleted || --numberOfRemainingAttempts <= 0));
+            }
+
+	        JObject json = JObject.Parse(answer);
 
             var rawResponse = json["response"];
 
-            return new VkResponse(rawResponse) {RawJson = answer};
+            VkResponse vkResponse = new VkResponse(rawResponse) { RawJson = answer };
+
+            // Если в ответе есть поле count (счетчик общего числа объектов, которые можно запросить), сохраняем его.
+            CountFromLastResponse = vkResponse["count"];
+
+            return vkResponse;
         }
 
         /// <summary>

@@ -1,14 +1,14 @@
-﻿using VkNet.Enums.Filters;
-using VkNet.Model.Attachments;
-
-namespace VkNet.Categories
+﻿namespace VkNet.Categories
 {
     using System;
     using JetBrains.Annotations;
 
-    using Enums;
     using Model;
     using Utils;
+    using Extended;
+
+    using Enums.Filters;
+    using Model.Attachments;
 
     /// <summary>
     /// Методы для работы со статусом пользователя или сообщества.
@@ -17,9 +17,15 @@ namespace VkNet.Categories
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public StatusCategoryExtended Ex { get; private set; }
+
         internal StatusCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new StatusCategoryExtended(this, _vk);
         }
 
         /// <summary>

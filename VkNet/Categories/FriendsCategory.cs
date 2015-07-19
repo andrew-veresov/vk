@@ -1,7 +1,4 @@
-﻿using VkNet.Enums.Filters;
-using VkNet.Enums.SafetyEnums;
-
-namespace VkNet.Categories
+﻿namespace VkNet.Categories
 {
     using System;
     using System.Collections.Generic;
@@ -9,9 +6,13 @@ namespace VkNet.Categories
     using System.Linq;
     using JetBrains.Annotations;
 
+    using Enums.Filters;
+    using Enums.SafetyEnums;
+
     using Enums;
     using Model;
     using Utils;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с друзьями.
@@ -20,12 +21,18 @@ namespace VkNet.Categories
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public FriendsCategoryExtended Ex { get; private set; }
+
         internal FriendsCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new FriendsCategoryExtended(this, _vk);
         }
 
-	    /// <summary>
+        /// <summary>
 	    /// Возвращает список идентификаторов друзей пользователя или расширенную информацию о друзьях пользователя (при использовании параметра fields).
 	    /// </summary>
 	    /// <param name="uid">Идентификатор пользователя, для которого необходимо получить список друзей.</param>
@@ -349,7 +356,6 @@ namespace VkNet.Categories
 
             return response.ToReadOnlyCollectionOf<long>(x => x);
         }
-
         
         /// <summary>
         /// Возвращает информацию о полученных или отправленных заявках на добавление в друзья для текущего пользователя

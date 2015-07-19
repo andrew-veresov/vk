@@ -6,10 +6,12 @@ namespace VkNet.Categories
 
     using Utils;
     using Enums;
-    using Enums.SafetyEnums;
     using Model;
+    using Extended;
+
+    using Enums.SafetyEnums;
     using Model.Attachments;
-    
+
     /// <summary>
     /// Методы для работы с фотографиями.
     /// </summary>
@@ -17,9 +19,15 @@ namespace VkNet.Categories
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public PhotoCategoryExtended Ex { get; private set; }
+
         internal PhotoCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new PhotoCategoryExtended(this, _vk);
         }
         /// <summary>
         /// Создает пустой альбом для фотографий. 
@@ -88,7 +96,7 @@ namespace VkNet.Categories
         /// </summary>
         /// <param name="ownerId">Идентификатор пользователя или сообщества, которому принадлежат альбомы. Обратите внимание, идентификатор сообщества в параметре owner_id необходимо указывать со знаком &quot;-&quot; — например, owner_id=-1 соответствует идентификатору сообщества ВКонтакте API (club1)</param>
         /// <param name="albumIds">Перечисленные через запятую ID альбомов</param>
-        /// <param name="offset">Cмещение, необходимое для выборки определенного подмножества альбомов</param>
+        /// <param name="offset">Смещение, необходимое для выборки определенного подмножества альбомов</param>
         /// <param name="count">Количество альбомов, которое нужно вернуть</param>
         /// <param name="needSystem">true – будут возвращены системные альбомы, имеющие отрицательные идентификаторы.</param>
         /// <param name="needCovers">true — будет возвращено дополнительное поле thumb_src. По умолчанию поле thumb_src не возвращается</param>
@@ -400,7 +408,7 @@ namespace VkNet.Categories
         /// <summary>
         /// Возвращает адрес сервера для загрузки фотографии на стену пользователя или сообщества. 
         /// </summary>
-        /// <param name="groupId">Идентификатор сообщества, на стену которого нужно загрузить фото (без знака «минус»)</param>
+        /// <param name="groupId">Идентификатор сообщества, на стену которого нужно загрузить фото (без знака "минус")</param>
         /// <returns>После успешного выполнения возвращает объект <see cref="UploadServerInfo"/>.</returns>
         /// <remarks>
         /// Страница документации ВКонтакте <see href="http://vk.com/dev/photos.getWallUploadServer"/>.
@@ -520,7 +528,7 @@ namespace VkNet.Categories
         /// <param name="longitude">Географическая долгота отметки, заданная в градусах (от -180 до 180)</param>
         /// <param name="startTime">Время в формате unixtime, не раньше которого должны были быть загружены найденные фотографии. положительное число</param>
         /// <param name="endTime">Время в формате unixtime, не позже которого должны были быть загружены найденные фотографии. положительное число</param>
-        /// <param name="sort">True – сортировать по количеству отметок «Мне нравится», false – сортировать по дате добавления фотографии. положительное число</param>
+        /// <param name="sort">True – сортировать по количеству отметок "Мне нравится", false – сортировать по дате добавления фотографии. положительное число</param>
         /// <param name="offset">смещение относительно первой найденной фотографии для выборки определенного подмножества. положительное число</param>
         /// <param name="count">количество возвращаемых фотографий. положительное число, по умолчанию 100, максимальное значение 1000</param>
         /// <param name="radius">радиус поиска в метрах. (работает очень приближенно, поэтому реальное расстояние до цели может отличаться от заданного). Может принимать значения: 10, 100, 800, 6000, 50000 положительное число, по умолчанию 5000</param>
@@ -686,7 +694,7 @@ namespace VkNet.Categories
         /// </summary>
         /// <param name="ownerId">Идентификатор пользователя или сообщества, которому принадлежит фотография. Обратите внимание, идентификатор сообщества в параметре owner_id необходимо указывать со знаком &quot;-&quot; — например, owner_id=-1 соответствует идентификатору сообщества ВКонтакте API (club1)</param>
         /// <param name="photoId">Идентификатор фотографии</param>
-        /// <param name="albumId">Идентификатор альбома/param>
+        /// <param name="albumId">Идентификатор альбома</param>
         /// <returns>После успешного выполнения возвращает true.</returns>
         /// <remarks>
         /// Страница документации ВКонтакте <see href="http://vk.com/dev/photos.makeCover"/>.
