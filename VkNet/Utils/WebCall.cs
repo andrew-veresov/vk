@@ -16,6 +16,7 @@
             Request = (HttpWebRequest)WebRequest.Create(url);
             Request.Accept = "text/html";
             Request.UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)";
+            Request.Headers.Add("Accept-Language: ru-ru");
             Request.CookieContainer = cookies.Container;
 
             Result = new WebCallResult(url, cookies);
