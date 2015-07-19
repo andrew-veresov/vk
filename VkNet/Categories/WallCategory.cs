@@ -416,6 +416,26 @@
         }
 
         /// <summary>
+    	/// Удаляет комментарий текущего пользователя к записи на его стене. 
+    	/// </summary>
+    	/// <param name="commentId">Идентификатор пользователя, на чьей стене находится комментарий к записи. </param>
+    	/// <remarks>
+    	/// Для вызова этого метода Ваше приложение должно иметь права с битовой маской, содержащей <see cref="Settings.Wall"/>.
+    	/// Страница документации ВКонтакте <see href="http://vk.com/dev/wall.deleteComment"/>.
+    	/// </remarks>
+    	public bool DeleteComment(long commentId)
+    	{
+        	VkErrors.ThrowIfNumberIsNegative(() => commentId);
+
+        	var parameters = new VkParameters
+             		{
+                         	{ "comment_id", commentId }
+             		};
+
+        	return _vk.Call("wall.deleteComment", parameters);
+    	}
+
+        /// <summary>
     	/// Удаляет комментарий текущего пользователя к записи на своей или чужой стене. 
     	/// </summary>
     	/// <param name="commentId">Идентификатор пользователя, на чьей стене находится комментарий к записи. </param>
@@ -430,7 +450,7 @@
 
         	var parameters = new VkParameters
              		{
-                         	{ "owner_id", ownerId },
+                            {"owner_id", ownerId},
                          	{ "comment_id", commentId }
              		};
 
