@@ -6,11 +6,13 @@
     using System.Linq;
     using JetBrains.Annotations;
     
-    using Enums;
     using Enums.Filters;
-    using Model;
     using Model.Attachments;
+
+    using Enums;
+    using Model;
     using Utils;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с аудиозаписями.
@@ -19,9 +21,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public AudioCategoryExtended Ex { get; private set; }
+
         internal AudioCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new AudioCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -127,7 +135,7 @@
         {
             return GetById((IEnumerable<string>)audios);
         }
-
+        
         /// <summary>
         /// Возвращает список аудиозаписей группы.
         /// </summary>
@@ -174,7 +182,7 @@
         {
             return InternalGet("uid", uid, out user, albumId, aids, true, count, offset);
         }
-
+        
         /// <summary>
         /// Возвращает список аудиозаписей пользователя.
         /// </summary>
@@ -289,7 +297,7 @@
             VkResponseArray response = _vk.Call("audio.search", parameters);
 
             totalCount = response[0];
-
+            _vk.CountFromLastResponse = totalCount;
             return response.Skip(1).ToReadOnlyCollectionOf<Audio>(r => r);
         }
 
@@ -534,7 +542,7 @@
                 };
 
             VkResponseArray response = _vk.Call("audio.getAlbums", parameters);
-
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<AudioAlbum>(x => x);
         }
 
@@ -615,10 +623,10 @@
             VkErrors.ThrowIfNullOrEmpty(() => audio);
 
             var parameters = new VkParameters
-                {
-                    {"audio", audio}
-                };
-            parameters.Add("target_ids", targetIds);
+            {
+                {"audio", audio},
+                {"target_ids", targetIds}
+            };
 
             VkResponseArray response = _vk.Call("audio.setBroadcast", parameters);
 

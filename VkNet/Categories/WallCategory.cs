@@ -9,12 +9,13 @@
     using Enums;
     using Model;
     using Utils;
+    using Extended;
 
     using System.Text;
     using Enums.Filters;
     using Enums.SafetyEnums;
     using Model.Attachments;
-
+    
     /// <summary>
     /// Методы для работы со стеной пользователя.
     /// </summary>
@@ -22,9 +23,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public WallCategoryExtended Ex { get; private set; }
+
         internal WallCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new WallCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -92,7 +99,6 @@
 		    return response["count"];
 		}
 
-
         /// <summary>
         /// Возвращает список комментариев к записи на стене пользователя. 
         /// </summary>
@@ -103,7 +109,7 @@
         /// <param name="needLikes">Признак нужно ли возвращать поле Likes в комментариях.</param>
         /// <param name="count">Количество комментариев, которое необходимо получить (но не более 100).</param>
         /// <param name="offset">Смещение, необходимое для выборки определенного подмножества комментариев.</param>
-        /// <param name="previewLength">Количество символов, по которому нужно обрезать комментарии. Если указано 0, то комментарии не образеютяс. 
+        /// <param name="previewLength">Количество символов, по которому нужно обрезать комментарии. Если указано 0, то комментарии не обрезаются. 
         /// Обратите внимание, что комментарии обрезаются по словам.</param>
         /// <returns>
         /// Список комментариев к записи на стене пользователя.
@@ -213,8 +219,7 @@
 			return response.ToReadOnlyCollectionOf<Post>(x => x);
 		}
 
-
-	    /// <summary>
+        /// <summary>
 	    /// Публикует новую запись на своей или чужой стене. 
 	    /// Данный метод позволяет создать новую запись на стене, а также опубликовать предложенную новость или отложенную запись. 
 	    /// </summary>
@@ -277,8 +282,7 @@
 			return  _vk.Call("wall.post", parameters)["post_id"];
 		}
 
-
-	    /// <summary>
+        /// <summary>
 		/// Копирует объект на стену пользователя или сообщества. 
 	    /// </summary>
 		/// <param name="object">Строковый идентификатор объекта, который необходимо разместить на стене, например, wall66748_3675 или wall-1_340364.</param>

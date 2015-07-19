@@ -6,12 +6,14 @@
     using JetBrains.Annotations;
 
     using Enums;
+    using Model;
+    using Utils;
+    using Extended;
+
     using Enums.Filters;
     using Enums.SafetyEnums;
-    using Model;
     using Model.Attachments;
-    using Utils;
-
+    
     /// <summary>
     /// Методы для работы с видеофайлами.
     /// </summary>
@@ -19,9 +21,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public VideoCategoryExtended Ex { get; private set; }
+
         internal VideoCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new VideoCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -257,7 +265,7 @@
         /// <param name="query">Строка поискового запроса.</param>
         /// <param name="sort">Вид сортировки.</param>
         /// <param name="isHd">Если true, то поиск производится только по видеозаписям высокого качества.</param>
-        /// <param name="isAdult">Фильтр «Безопасный поиск».</param>
+        /// <param name="isAdult">Фильтр "Безопасный поиск".</param>
         /// <param name="filters">Список критериев, по которым требуется отфильтровать видео.</param>
         /// <param name="isSearchOwn">Искать по видеозаписям пользователя.</param>
         /// <param name="count">
@@ -738,7 +746,7 @@
 
             return _vk.Call("video.removeTag", parameters);
         }
-        
+
         /// <summary>
         /// Возвращает список видеозаписей, на которых есть непросмотренные отметки. 
         /// </summary>

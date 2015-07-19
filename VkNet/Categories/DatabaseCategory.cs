@@ -2,12 +2,15 @@
 {
     using System.Linq;
     using System.Collections.ObjectModel;
+    using System.Collections.Generic;
     using JetBrains.Annotations;
 
     using Enums.Filters;
     using Enums.SafetyEnums;
+
     using Model;
     using Utils;
+    using Extended;
 
     /// <summary>
     /// Методы для получения справочной информации (страны, города, школы, учебные заведения и т.п.).
@@ -16,9 +19,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public DatabaseCategoryExtended Ex { get; private set; }
+
         internal DatabaseCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new DatabaseCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -199,6 +208,7 @@
                 };
 
             VkResponseArray response = _vk.Call("database.getUniversities", parameters, true);
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<University>(x => x);
         }
 
@@ -232,6 +242,7 @@
                 };
 
             VkResponseArray response = _vk.Call("database.getSchools", parameters, true);
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<School>(x => x);
         }
 
@@ -260,6 +271,7 @@
                 };
 
             VkResponseArray response = _vk.Call("database.getFaculties", parameters, true);
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<Faculty>(x => x);
         }
     }

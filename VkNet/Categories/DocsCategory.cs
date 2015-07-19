@@ -4,11 +4,12 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using JetBrains.Annotations;
+    
+    using Model.Attachments;
 
     using Utils;
-
-    using Model.Attachments;
-    using VkNet.Model;
+    using Model;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с документами (получение списка, загрузка, удаление и т.д.)
@@ -17,9 +18,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public DocsCategoryExtended Ex { get; private set; }
+
         internal DocsCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new DocsCategoryExtended(this, _vk);
         }
 
         /// <summary>

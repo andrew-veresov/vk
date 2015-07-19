@@ -1,7 +1,4 @@
-﻿using VkNet.Enums.Filters;
-using VkNet.Model.Attachments;
-
-namespace VkNet.Categories
+﻿namespace VkNet.Categories
 {
 #if WINDOWS_PHONE
     using System.Net;
@@ -17,9 +14,13 @@ namespace VkNet.Categories
     using System.Linq;
     using JetBrains.Annotations;
 
+    using Enums.Filters;
+    using Model.Attachments;
+    
     using Enums;
     using Model;
     using Utils;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с сообщениями.
@@ -28,9 +29,15 @@ namespace VkNet.Categories
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public MessagesCategoryExtended Ex { get; private set; }
+
         internal MessagesCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new MessagesCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -283,7 +290,7 @@ namespace VkNet.Categories
             VkResponseArray response = _vk.Call("messages.search", parameters);
 
             totalCount = response[0];
-
+            _vk.CountFromLastResponse = totalCount;
             return response.Skip(1).ToReadOnlyCollectionOf<Message>(r => r);
         }
 
@@ -526,7 +533,7 @@ namespace VkNet.Categories
         /// </param>
         /// <returns>
         /// После успешного выполнения возвращает true, false в противном случае. 
-        /// Текст «N набирает сообщение...» отображается в течение 10 секунд после вызова метода, либо до момента отправки сообщения. 
+        /// Текст "N набирает сообщение..." отображается в течение 10 секунд после вызова метода, либо до момента отправки сообщения. 
         /// </returns>
         /// <remarks>
         /// Для вызова этого метода Ваше приложение должно иметь права с битовой маской, содержащей <see cref="Settings.Messages"/>. 

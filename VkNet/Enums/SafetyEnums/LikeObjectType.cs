@@ -51,7 +51,7 @@
         public static LikeObjectType TopicComment = RegisterPossibleValue("topic_comment");
 
         /// <summary>
-        /// Страница сайта, на котором установлен виджет «Мне нравится»
+        /// Страница сайта, на котором установлен виджет "Мне нравится"
         /// </summary>
         public static LikeObjectType SitePage = RegisterPossibleValue("sitepage");
     }

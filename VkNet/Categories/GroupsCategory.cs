@@ -5,12 +5,14 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using JetBrains.Annotations;
-    
-    using Enums;
+
     using Enums.Filters;
     using Enums.SafetyEnums;
+
+    using Enums;
     using Model;
     using Utils;
+    using Extended;
 
     /// <summary>
     /// Методы для работы с сообществами (группами).
@@ -19,9 +21,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public GroupsCategoryExtended Ex { get; private set; }
+
         internal GroupsCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new GroupsCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -186,7 +194,7 @@
             VkResponseArray response = _vk.Call("groups.search", parameters);
 
             totalCount = response[0];
-
+            _vk.CountFromLastResponse = totalCount;
             return response.Skip(1).ToReadOnlyCollectionOf<Group>(r => r);
         }
 
@@ -211,7 +219,7 @@
                     {"offset", offset}
                 };
             VkResponseArray response = _vk.Call("groups.getInvites", parameters);
-
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<Group>(x => x);
         }
 
@@ -273,7 +281,7 @@
                 };
 
             VkResponseArray response = _vk.Call("groups.getBanned", parameters);
-
+            _vk.CountFromLastResponse = response[0];
             return response.Skip(1).ToReadOnlyCollectionOf<User>(x => x);
         }
 
@@ -303,7 +311,7 @@
         /// <summary>
         /// Позволяет назначить/разжаловать руководителя в сообществе или изменить уровень его полномочий.
         /// </summary>
-        /// <param name="groupId">Идентификатор сообщества (указывается без знака «минус»)</param>
+        /// <param name="groupId">Идентификатор сообщества (указывается без знака "минус")</param>
         /// <param name="userId">Идентификатор пользователя, чьи полномочия в сообществе нужно изменить</param>
         /// <param name="role">Уровень полномочий. Если параметр не задан, с пользователя user_id снимаются полномочия руководителя</param>
         /// <param name="isContact">Отображать ли пользователя в блоке контактов сообщества</param>
@@ -336,7 +344,7 @@
         /// <summary>
         /// Позволяет назначить/разжаловать руководителя в сообществе или изменить уровень его полномочий.
         /// </summary>
-        /// <param name="groupId">Идентификатор сообщества (указывается без знака «минус»)</param>
+        /// <param name="groupId">Идентификатор сообщества (указывается без знака "минус")</param>
         /// <param name="userId">Идентификатор пользователя, чьи полномочия в сообществе нужно изменить</param>
         /// <param name="role">Уровень полномочий. Если параметр не задан, с пользователя user_id снимаются полномочия руководителя</param>
         /// <returns>В случае успешного выполнения возвращает true</returns>

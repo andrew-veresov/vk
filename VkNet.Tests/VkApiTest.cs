@@ -92,7 +92,7 @@
         {
             const string urlWithBadLoginOrPassword = "http://oauth.vk.com/oauth/authorize?client_id=1&redirect_uri=http%3A%2F%2Foauth.vk.com%2Fblank.html&response_type=token&scope=2&v=&state=&display=wap&m=4&email=mail";            
             var browser = new Mock<IBrowser>();
-            browser.Setup(b => b.Authorize(AppId, Email, Password, Settings.Friends)).Returns(VkAuthorization.From(new Uri(urlWithBadLoginOrPassword)));
+            browser.Setup(b => b.Authorize(AppId, Email, Password, Settings.Friends, null, null)).Returns(VkAuthorization.From(new Uri(urlWithBadLoginOrPassword)));
 
             _vk.Browser = browser.Object;
             var ex = This.Action(() => _vk.Authorize(AppId, Email, Password, Settings.Friends)).Throws<VkApiAuthorizationException>();

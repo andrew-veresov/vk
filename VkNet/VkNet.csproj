@@ -44,8 +44,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net20\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net35\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\documents\visual studio 2015\Projects\VkNetEx\packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -56,7 +56,22 @@
   <ItemGroup>
     <Compile Include="Categories\AccountCategory.cs" />
     <Compile Include="Categories\AudioCategory.cs" />
+    <Compile Include="Categories\Extended\AudioCategoryExtended.cs" />
     <Compile Include="Categories\DocsCategory.cs" />
+    <Compile Include="Categories\Extended\AccountCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\DatabaseCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\DocsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\FaveCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\FriendsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\GroupsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\LikesCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\MessagesCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\PhotoCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\StatusCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\UsersCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\UtilsCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\VideoCategoryExtended.cs" />
+    <Compile Include="Categories\Extended\WallCategoryExtended.cs" />
     <Compile Include="Categories\LikesCategory.cs" />
     <Compile Include="Categories\PhotoCategory.cs">
       <SubType>Code</SubType>
@@ -123,6 +138,7 @@
     <Compile Include="Exception\UserAuthorizationFailException.cs" />
     <Compile Include="Exception\VkApiMethodInvokeException.cs" />
     <Compile Include="Categories\FriendsCategory.cs" />
+    <Compile Include="Utils\ICaptchaSolver.cs" />
     <Compile Include="Model\AccountInfo.cs" />
     <Compile Include="Model\Attachments\Album.cs" />
     <Compile Include="Model\Attachments\ApplicationContent.cs" />
@@ -227,8 +243,10 @@
     <Compile Include="VkApi.cs" />
     <Compile Include="Utils\VkErrors.cs" />
     <Compile Include="Utils\VkAuthorization.cs" />
+    <Compile Include="Utils\VkApiExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Utils\VkResponseToManualEnumCastsGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>VkResponseToManualEnumCastsGenerator.cs</LastGenOutput>
@@ -241,7 +259,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>VkResponseToModelCastsGenerator.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

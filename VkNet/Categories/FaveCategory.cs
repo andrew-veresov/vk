@@ -1,12 +1,15 @@
 ﻿namespace VkNet.Categories
 {
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using JetBrains.Annotations;
 
-    using Model;
     using Model.Attachments;
-    using Utils;
 
+    using Model;
+    using Utils;
+    using Extended;
+    
     /// <summary>
     /// Категория работы с закладками.
     /// </summary>
@@ -14,9 +17,15 @@
     {
         private readonly VkApi _vk;
 
+        /// <summary>
+        /// Расширенные методы.
+        /// </summary>
+        public FaveCategoryExtended Ex { get; private set; }
+
         internal FaveCategory(VkApi vk)
         {
             _vk = vk;
+            Ex = new FaveCategoryExtended(this, _vk);
         }
 
         /// <summary>
@@ -73,7 +82,7 @@
         }
 
         /// <summary>
-        /// Возвращает записи, на которых текущий пользователь поставил отметку «Мне нравится».
+        /// Возвращает записи, на которых текущий пользователь поставил отметку "Мне нравится".
         /// </summary>
         /// <param name="count">Количество пользователей, информацию о которых необходимо вернуть</param>
         /// <param name="offset">Смещение, необходимое для выборки определенного подмножества пользователей</param>
@@ -100,7 +109,7 @@
         }
 
         /// <summary>
-        /// Возвращает список видеозаписей, на которых текущий пользователь поставил отметку «Мне нравится».
+        /// Возвращает список видеозаписей, на которых текущий пользователь поставил отметку "Мне нравится".
         /// </summary>
         /// <param name="count">Количество пользователей, информацию о которых необходимо вернуть</param>
         /// <param name="offset">Смещение, необходимое для выборки определенного подмножества пользователей</param>
