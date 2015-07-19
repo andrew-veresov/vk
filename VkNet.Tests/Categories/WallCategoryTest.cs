@@ -1215,7 +1215,7 @@ namespace VkNet.Tests.Categories
 		[Ignore]
 		public void DeleteComment_AccessTokenInvalid_ThrowAccessTokenInvalidException()
 		{
-			This.Action(() =>_defaultWall.DeleteComment()).Throws<AccessTokenInvalidException>();
+			This.Action(() =>_defaultWall.DeleteComment(0)).Throws<AccessTokenInvalidException>();
 		}
 
 		[Test]
