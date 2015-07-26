@@ -12,17 +12,17 @@
         /// <summary>
         /// Ключ для подключения.
         /// </summary>
-        public string Key { get; set; }
+        public string Key { get; internal set; }
 
         /// <summary>
         /// Имя сервера быстрых сообщений.
         /// </summary>
-        public string Server { get; set; }
+        public string Server { get; internal set; }
 
         /// <summary>
         /// Отметка времени.
         /// </summary>
-        public long Ts { get; set; }
+        public long Ts { get; internal set; }
 
         #region Методы
 

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VkNet</RootNamespace>
     <AssemblyName>VkNet</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -40,10 +40,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antigate.NET, Version=1.1.0.2, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Antigate.NET_v1.1.1\bin\2.0\Antigate.NET.dll</HintPath>
-    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net40\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -53,12 +49,29 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Core.2.3.0-beta2\lib\net40\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Interfaces.2.3.0-beta2\lib\net40\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Linq.2.3.0-beta2\lib\net40\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-PlatformServices.2.3.0-beta2\lib\net40\System.Reactive.PlatformServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Categories\AccountCategory.cs" />
     <Compile Include="Categories\AudioCategory.cs" />
+    <Compile Include="Categories\BaseCategory.cs" />
     <Compile Include="Categories\Extended\AudioCategoryExtended.cs" />
     <Compile Include="Categories\DocsCategory.cs" />
     <Compile Include="Categories\Extended\AccountCategoryExtended.cs" />
@@ -76,6 +89,7 @@
     <Compile Include="Categories\Extended\VideoCategoryExtended.cs" />
     <Compile Include="Categories\Extended\WallCategoryExtended.cs" />
     <Compile Include="Categories\LikesCategory.cs" />
+    <Compile Include="Categories\LongPollCategory.cs" />
     <Compile Include="Categories\PhotoCategory.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -105,6 +119,7 @@
     <Compile Include="Enums\MessageType.cs" />
     <Compile Include="Enums\PageAccessKind.cs" />
     <Compile Include="Enums\PeopleMain.cs" />
+    <Compile Include="Enums\Permissions.cs" />
     <Compile Include="Enums\PoliticalPreferences.cs" />
     <Compile Include="Enums\RelationType.cs" />
     <Compile Include="Enums\SafetyEnums\LikeObjectType.cs" />
@@ -141,6 +156,8 @@
     <Compile Include="Exception\UserAuthorizationFailException.cs" />
     <Compile Include="Exception\VkApiMethodInvokeException.cs" />
     <Compile Include="Categories\FriendsCategory.cs" />
+    <Compile Include="Model\LongPollHistoryResponse.cs" />
+    <Compile Include="Model\LongPollResponse.cs" />
     <Compile Include="Utils\ICaptchaSolver.cs" />
     <Compile Include="Model\AccountInfo.cs" />
     <Compile Include="Model\Attachments\Album.cs" />
@@ -247,6 +264,7 @@
     <Compile Include="Utils\VkErrors.cs" />
     <Compile Include="Utils\VkAuthorization.cs" />
     <Compile Include="Utils\VkApiExtensions.cs" />
+    <Compile Include="VkLongPollApi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

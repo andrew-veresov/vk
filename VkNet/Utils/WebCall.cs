@@ -1,4 +1,7 @@
-﻿namespace VkNet.Utils
+﻿using System.IO;
+using System.Threading.Tasks;
+
+namespace VkNet.Utils
 {
     using System.Net;
     using System.Text;
@@ -58,6 +61,20 @@
             return call.MakeRequest();
         }
 
+        public static Task<WebCallResult> PostCallAsync(string url, string parameters)
+        {
+            var call = new WebCall(url, new Cookies());
+            call.Request.Method = "POST";
+            call.Request.ContentType = "application/x-www-form-urlencoded";
+            var data = Encoding.UTF8.GetBytes(parameters);
+            call.Request.ContentLength = data.Length;
+
+            using (var requestStream = call.Request.GetRequestStream())
+                requestStream.Write(data, 0, data.Length);                
+
+            return call.MakeRequestAsync();
+        }
+
         public static WebCallResult Post(WebForm form)
         {
             var call = new WebCall(form.ActionUrl, form.Cookies);
@@ -91,19 +108,49 @@
             using (var response = GetResponse())
             using (var stream = response.GetResponseStream())
             {
-                if (stream == null)
-                    throw new VkApiException("Response is null.");
-
-                var encoding = response.CharacterSet != null ? Encoding.GetEncoding(response.CharacterSet) : Encoding.UTF8;
-                Result.SaveResponse(response.ResponseUri, stream, encoding);
-
-                Result.SaveCookies(response.Cookies);
-
-                if (response.StatusCode == HttpStatusCode.Redirect)
-                    return RedirectTo(response.Headers["Location"]);
-
-                return Result;
+                return GetWebCallResultFromResponseStream(stream, response);
             }
+        }
+
+        private WebCallResult GetWebCallResultFromResponseStream(Stream stream, HttpWebResponse response)
+        {
+            if (stream == null)
+                throw new VkApiException("Response is null.");
+
+            var encoding = response.CharacterSet != null ? Encoding.GetEncoding(response.CharacterSet) : Encoding.UTF8;
+            Result.SaveResponse(response.ResponseUri, stream, encoding);
+
+            Result.SaveCookies(response.Cookies);
+
+            if (response.StatusCode == HttpStatusCode.Redirect)
+                return RedirectTo(response.Headers["Location"]);
+
+            return Result;
+        }
+
+        private Task<WebCallResult> MakeRequestAsync()
+        {
+            return Task.Run(() =>
+            {
+                WebCallResult result = null;
+                try
+                {
+                    Request.BeginGetResponse((asyncres) =>
+                    {
+                        HttpWebRequest responseRequest = (HttpWebRequest)asyncres.AsyncState;
+                        var response = (HttpWebResponse)responseRequest.EndGetResponse(asyncres);
+                        using (var stream = response.GetResponseStream())
+                        {
+                            result = GetWebCallResultFromResponseStream(stream, response);
+                        }
+                    }, Request);
+                }
+                catch (WebException ex)
+                {
+                    throw new VkApiException(ex.Message, ex);
+                }
+                return result;
+            });
         }
 
         private HttpWebResponse GetResponse()

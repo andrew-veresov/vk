@@ -1,4 +1,6 @@
-﻿namespace VkNet.Utils
+﻿using System.Threading.Tasks;
+
+namespace VkNet.Utils
 {
     using Enums.Filters;
 
@@ -14,6 +16,13 @@
         /// <param name="url">URL, в котором закодированы параметры запроса.</param>
         /// <returns>Результат выполнения запроса, полученный от сервера в формате JSON.</returns>
         string GetJson(string url);
+
+        /// <summary>
+        /// Выполняет асинхронный JSON-запрос к ВКонтакте.
+        /// </summary>
+        /// <param name="url">URL, в котором закодированы параметры запроса.</param>
+        /// <returns>Результат выполнения запроса, полученный от сервера в формате JSON.</returns>
+        Task<string> GetJsonAsync(string url);
 
 #if false
         /// <summary>

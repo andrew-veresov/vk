@@ -1158,28 +1158,30 @@ namespace VkNet.Tests.Categories
         [Test]
         public void GetLongPollServer_AccessTokenInvalid_ThrowAccessTokenInvalidException()
         {
-            var cat = new MessagesCategory(new VkApi());
-            This.Action(() => cat.GetLongPollServer()).Throws<AccessTokenInvalidException>();
+            throw new NotImplementedException();
+            //var cat = new MessagesCategory(new VkApi());
+            //This.Action(() => cat.GetLongPollServer()).Throws<AccessTokenInvalidException>();
         }
 
         [Test]
         public void GetLongPollServer_NormalCase_LongPollServerResponse()
         {
-            url = "https://api.vk.com/method/messages.getLongPollServer?access_token=token";
-            json =
-                @"{
-                    'response': {
-                      'key': '6f4120988efaf3a7d398054b5bb5d019c5844bz3',
-                      'server': 'im46.vk.com/im1858',
-                      'ts': 1627957305
-                    }
-                  }";
+            throw new NotImplementedException();
+            //url = "https://api.vk.com/method/messages.getLongPollServer?access_token=token";
+            //json =
+            //    @"{
+            //        'response': {
+            //          'key': '6f4120988efaf3a7d398054b5bb5d019c5844bz3',
+            //          'server': 'im46.vk.com/im1858',
+            //          'ts': 1627957305
+            //        }
+            //      }";
 
-            var response = Cat.GetLongPollServer();
+            //var response = Cat.GetLongPollServer();
 
-            Assert.That(response.Key, Is.EqualTo("6f4120988efaf3a7d398054b5bb5d019c5844bz3"));
-            Assert.That(response.Server, Is.EqualTo("im46.vk.com/im1858"));
-            Assert.That(response.Ts, Is.EqualTo(1627957305));
+            //Assert.That(response.Key, Is.EqualTo("6f4120988efaf3a7d398054b5bb5d019c5844bz3"));
+            //Assert.That(response.Server, Is.EqualTo("im46.vk.com/im1858"));
+            //Assert.That(response.Ts, Is.EqualTo(1627957305));
         }
 
         #region Get

@@ -1,4 +1,7 @@
-﻿namespace VkNet
+﻿using System.Threading.Tasks;
+using VkNet.Enums;
+
+namespace VkNet
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -169,6 +172,10 @@
         /// API для работы с лайками
         /// </summary>
         public LikesCategory Likes { get; private set; }
+        /// <summary>
+        /// API для работы с Long Poll сервером
+        /// </summary>
+        public LongPollCategory LongPoll { get; private set; }
 
         #endregion
 
@@ -208,6 +215,7 @@
             Photo = new PhotoCategory(this);
             Docs = new DocsCategory(this);
             Likes = new LikesCategory(this);
+            LongPoll = new LongPollCategory(this);
 			
             RequestsPerSecond = 3;
             MaxCaptchaRecognitionCount = 5;
@@ -238,7 +246,7 @@
 
             if (CaptchaSolver == null)
             {
-                _authorize(appId, email, password, settings, captchaSid, captchaKey);
+                AuthorizeInternal(appId, email, password, settings, captchaSid, captchaKey);
             }
             else
             {
@@ -246,7 +254,7 @@
                 {
                     try
                     {
-                        _authorize(appId, email, password, settings, captchaSid, captchaKey);
+                        AuthorizeInternal(appId, email, password, settings, captchaSid, captchaKey);
                         authorizationCompleted = true;
                         return;
                     }
@@ -273,19 +281,29 @@
         }
 
         /// <summary>
+        /// Проверяет доступно ли разрешение приложению
+        /// </summary>
+        /// <param name="permission">Разрешения которые необходимо проверить</param>
+        /// <returns>True если все разрешения доступны приложению</returns>
+        public bool HasPermission(Permissions permission)
+        {
+            return (_settings.Value | (ulong)permission) == (ulong)permission;
+        }
+
+        /// <summary>
         /// Получает новый AccessToken использую логин, пароль, приложение и настройки указанные при последней авторизации.
         /// </summary>
         public void RefreshToken()
         {
             if (_credentials.HasValue)
-                _authorize(_appId, _credentials.Value.Key, _credentials.Value.Value, _settings);
+                AuthorizeInternal(_appId, _credentials.Value.Key, _credentials.Value.Value, _settings);
             else
                 throw new AggregateException("Невозможно обновить токен доступа т.к. последняя авторизация происходила не при помощи логина и пароля");
         }
 
         #region Private & Internal Methods
 
-        internal void _authorize(int appId, string email, string password, Settings settings, long? captcha_sid = null, string captcha_key = null)
+        internal void AuthorizeInternal(int appId, string email, string password, Settings settings, long? captcha_sid = null, string captcha_key = null)
         {
             var authorization = Browser.Authorize(appId, email, password, settings, captcha_sid, captcha_key);
             if (!authorization.IsAuthorized)
@@ -341,8 +359,77 @@
             
 			return Call(methodName, parameters, skipAuthorization);
 	    }
+		[MethodImpl(MethodImplOptions.NoInlining)]
+	    internal Task<VkResponse> CallAsync(string methodName, VkParameters parameters, bool skipAuthorization = false, string apiVersion = null)
+	    {
+		    if (!parameters.ContainsKey("v"))
+		    {
+			    if (!string.IsNullOrEmpty(apiVersion))
+					parameters.Add("v", apiVersion);
+				else
+				{
+					//TODO: WARN: раскомментировать после добавления аннотаций ко всем методам
+					//throw new InvalidParameterException("You must use ApiVersionAttribute except adding \"v\" parameter to VkParameters");
+				}
+		    }
+		    else
+		    {
+				//TODO: WARN: раскомментировать, исправив ошибки в существующем коде
+				//throw new InvalidParameterException("You must use ApiVersionAttribute except adding \"v\" parameter to VkParameters");
+		    }
+            
+			return CallAsync(methodName, parameters, skipAuthorization);
+	    }
 
 	    private VkResponse Call(string methodName, VkParameters parameters,  bool skipAuthorization = false)
+	    {
+	        string answer = null;
+
+            // Проверка на наличие обработчика капчи.
+	        if (CaptchaSolver == null)
+	            answer = Invoke(methodName, parameters, skipAuthorization);
+	        else
+	        {
+                var captchaRecognitionCount = MaxCaptchaRecognitionCount;
+                var numberOfRemainingAttempts = captchaRecognitionCount + 1;
+
+                long? captchaSid = null;
+                string captchaKey = null;
+                var authorizationCompleted = false;
+
+                do
+                {
+                    try
+                    {
+                        parameters.Add("captcha_sid", captchaSid);
+                        parameters.Add("captcha_key", captchaKey);
+                        answer = Invoke(methodName, parameters, skipAuthorization);
+
+                        authorizationCompleted = true;
+                        break;
+                    }
+                    catch (CaptchaNeededException captchaNeededException)
+                    {
+                        if (numberOfRemainingAttempts <= captchaRecognitionCount) { CaptchaSolver?.CaptchaIsFalse(); }
+                        captchaSid = captchaNeededException.Sid;
+                        captchaKey = CaptchaSolver?.Solve(captchaNeededException.Img?.AbsoluteUri);
+                    }
+                } while (!(authorizationCompleted || --numberOfRemainingAttempts <= 0));
+            }
+
+	        JObject json = JObject.Parse(answer);
+
+            var rawResponse = json["response"];
+
+            VkResponse vkResponse = new VkResponse(rawResponse) { RawJson = answer };
+
+            // Если в ответе есть поле count (счетчик общего числа объектов, которые можно запросить), сохраняем его.
+            CountFromLastResponse = vkResponse["count"];
+
+            return vkResponse;
+        }
+
+	    private async Task<VkResponse> CallAsync(string methodName, VkParameters parameters,  bool skipAuthorization = false)
 	    {
 	        string answer = null;
 
@@ -399,6 +486,40 @@
         /// <returns>Ответ сервера в формате JSON.</returns>
         [CanBeNull]
         public string Invoke(string methodName, IDictionary<string, string> parameters, bool skipAuthorization = false)
+        {
+            if (!skipAuthorization)
+                IfNotAuthorizedThrowException();
+
+            // проверка на не более 3-х запросов в секунду
+            TimeSpan span;
+            if (LastInvokeTime.HasValue && (span = LastInvokeTimeSpan.Value).TotalMilliseconds < _minInterval)
+            {
+                System.Threading.Thread.Sleep(_minInterval - (int)span.TotalMilliseconds);
+            }
+
+            string url = GetApiUrl(methodName, parameters);
+            
+            string answer = Browser.GetJson(url);
+            LastInvokeTime = DateTimeOffset.Now;
+            
+#if DEBUG && !UNIT_TEST
+            Trace.WriteLine(Utilities.PreetyPrintApiUrl(url));
+            Trace.WriteLine(Utilities.PreetyPrintJson(answer));
+#endif
+            VkErrors.IfErrorThrowException(answer);
+
+            return answer;
+        }
+
+        /// <summary>
+        /// Прямой вызов API-метода
+        /// </summary>
+        /// <param name="methodName">Название метода. Например, "wall.get".</param>
+        /// <param name="parameters">Вход. параметры метода.</param>
+        /// <param name="skipAuthorization">Флаг, что метод можно вызывать без авторизации.</param>
+        /// <returns>Ответ сервера в формате JSON.</returns>
+        [CanBeNull]
+        public async Task<string> InvokeAsync(string methodName, IDictionary<string, string> parameters, bool skipAuthorization = false)
         {
             if (!skipAuthorization)
                 IfNotAuthorizedThrowException();

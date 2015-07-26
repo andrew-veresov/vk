@@ -38,6 +38,11 @@ namespace VkNet.Enums.SafetyEnums
 			get { return _mask; }
 		}
 
+		protected static TFilter RegisterPossibleValue(Permissions mask, string value)
+		{
+		    return RegisterPossibleValue((ulong)mask, value);
+		}
+
 		protected static TFilter RegisterPossibleValue(ulong mask, string value)
 		{
 			if (mask == 0 || (mask & (mask - 1)) != 0)

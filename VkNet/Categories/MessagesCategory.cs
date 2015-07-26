@@ -749,39 +749,5 @@
 
             return _vk.Call("messages.removeChatUser", parameters);
         }
-
-        /// <summary>
-        /// Возвращает данные, необходимые для подключения к Long Poll серверу. 
-        /// Long Poll подключение позволит Вам моментально узнавать о приходе новых сообщений и других событий. 
-        /// </summary>
-        /// <returns>
-        /// Возвращает объект, с помощью которого можно подключиться к серверу быстрых сообщений для мгновенного 
-        /// получения приходящих сообщений и других событий.  
-        /// </returns>
-        /// <remarks>
-        /// Для вызова этого метода Ваше приложение должно иметь права с битовой маской, содержащей <see cref="Settings.Messages"/>. 
-        /// Страница документации ВКонтакте <see href="http://vk.com/dev/messages.getLongPollServer"/>.
-        /// </remarks>
-        [Pure]
-        public LongPollServerResponse GetLongPollServer()
-        {
-            return _vk.Call("messages.getLongPollServer", VkParameters.Empty);
-        }
-
-        /// <summary>
-        /// Возвращает обновления в личных сообщениях пользователя. 
-        /// Для ускорения работы с личными сообщениями может быть полезно кешировать уже загруженные ранее сообщения на 
-        /// мобильном устройстве / ПК пользователя, чтобы не получать их повторно при каждом обращении. 
-        /// Этот метод помогает осуществить синхронизацию локальной копии списка сообщений с актуальной версией. 
-        /// </summary>
-        /// <remarks>
-        /// Для вызова этого метода Ваше приложение должно иметь права с битовой маской, содержащей <see cref="Settings.Messages"/>. 
-        /// Страница документации ВКонтакте <see href="http://vk.com/dev/messages.getLongPollHistory"/>.
-        /// </remarks>
-        internal void GetLongPollHistory()
-        {
-            // TODO: Implement later
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace VkNet.Utils
+﻿using System.Threading.Tasks;
+
+namespace VkNet.Utils
 {
     using System.Net;
     using System.Text;
@@ -25,6 +27,20 @@
             string parameters = separatorPosition < 0 ? string.Empty : url.Substring(separatorPosition + 1);
 
             return WebCall.PostCall(methodUrl, parameters).Response;
+        }
+
+        /// <summary>
+        /// Выполняет асинхронный JSON-запрос к ВКонтакте.
+        /// </summary>
+        /// <param name="url">URL, в котором закодированы параметры запроса.</param>
+        /// <returns>Результат выполнения запроса, полученный от сервера в формате JSON.</returns>
+        public async Task<string> GetJsonAsync(string url)
+        {
+            var separatorPosition = url.IndexOf('?');
+            string methodUrl = separatorPosition < 0 ? url : url.Substring(0, separatorPosition);
+            string parameters = separatorPosition < 0 ? string.Empty : url.Substring(separatorPosition + 1);
+
+            return (await WebCall.PostCallAsync(methodUrl, parameters)).Response;
         }
 
         /// <summary>
