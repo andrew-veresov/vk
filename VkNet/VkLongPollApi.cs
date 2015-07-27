@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using VkNet.Enums;
 using VkNet.Enums.Filters;
 using VkNet.Model;
+using VkNet.Model.LongPollEvents;
 using VkNet.Utils;
 
 namespace VkNet
@@ -18,23 +19,14 @@ namespace VkNet
     public class VkLongPollApi
     {
         private readonly VkApi _api;
-        private LongPollServerResponse _serverInfo;
 
-        public long LastTS { get; protected set; }
+        public long? LastPTS { get; protected set; }
+
         public long? MaxMessageId { get; private set; }
 
         public IObservable<Message> GetMessagesObservable()
         {
             return ConstructHistoryObservable();
-            if (LastTS != 0)
-            {
-                return ConstructHistoryObservable();
-            }
-            else
-            {
-                return ConstructHistoryObservable()
-                    .Concat(ConstructLongPollObservable());
-            }
         }
 
         public IObservable<Message> ConstructHistoryObservable()
@@ -43,11 +35,16 @@ namespace VkNet
                 {
                     return Task.Run(() =>
                     {
-                        LongPollHistoryResponse history = null;
+                        var serverInfo = _api.LongPoll.GetLongPollServer(true);
+
+                        LongPollHistoryResponse history;
                         do
                         {
-                            history = _api.LongPoll.GetLongPollHistory(LastTS, maxMessageId: MaxMessageId, pts: history?.Pts);
-                            
+                            history = _api.LongPoll.GetLongPollHistory(serverInfo.Ts, maxMessageId: MaxMessageId, pts: LastPTS ?? serverInfo.Pts);
+                            if (history == null) continue;
+
+                            LastPTS = history.Pts;
+
                             foreach (var message in history.Messages)
                             {
                                 if ((MaxMessageId ?? 0) < message.Id)
@@ -56,37 +53,25 @@ namespace VkNet
                                 }
                                 obs.OnNext(message);
                             }
-                        } while (history.Messages.Count > 0);
+                            
+                        } while (history?.HasMoreMessages ?? false);
 
-                        obs.OnCompleted();
+                        var lastTS = serverInfo.Ts;
+                        do
+                        {
+                            var updates = _api.LongPoll.GetLongPollEvents(serverInfo.Server, serverInfo.Key, lastTS);
+                            lastTS = updates.Ts;
+                            foreach (var messageEvent in updates.Events.OfType<NewMessageEvent>())
+                            {
+                                obs.OnNext(messageEvent.Message);
+                            }
+                        } while (true);
                     });
                 }
             );
 
             return observable;
         }
-
-        public IObservable<Message> ConstructLongPollObservable()
-        {
-            var observable = Observable.Create<Message>(observer =>
-            {
-                return Task.Run(() =>
-                {
-                    var _serverInfo = _api.LongPoll.GetLongPollServer();
-                    Console.WriteLine("TimeStamp: " + _serverInfo.Ts);
-                    observer.OnCompleted();
-                });
-            });
-
-            return observable;
-        }
-        //public IObservable<Message> Messages = Observable.Create<Message>(observer =>
-        //{
-        //    if (LastTS != 0)
-        //    {
-
-        //    }
-        //})
 
         /// <summary>
         /// Возвращает объек позволяющий получать уведомления от Long Poll сервера
@@ -100,10 +85,9 @@ namespace VkNet
             _api = api;
         }
 
-        public VkLongPollApi(VkApi api, long lastTs): this(api)
+        public VkLongPollApi(VkApi api, long lastPts): this(api)
         {
-            LastTS = lastTs;
+            LastPTS = lastPts;
         }
-        
     }
 }

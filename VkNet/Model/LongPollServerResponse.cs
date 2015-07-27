@@ -24,6 +24,11 @@
         /// </summary>
         public long Ts { get; internal set; }
 
+        /// <summary>
+        /// Отметка времени.
+        /// </summary>
+        public long? Pts { get; set; }
+
         #region Методы
 
         internal static LongPollServerResponse FromJson(VkResponse response)
@@ -33,6 +38,7 @@
             longPollServerResponse.Key = response["key"];
             longPollServerResponse.Server = response["server"];
             longPollServerResponse.Ts = response["ts"];
+            longPollServerResponse.Pts = response["pts"];
 
             return longPollServerResponse;
         }

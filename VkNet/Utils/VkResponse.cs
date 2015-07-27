@@ -164,6 +164,14 @@
 
 	    #region Enums
 
+		public static implicit operator LongPollEventTypes? (VkResponse response)
+	    {
+		    if (response == null)
+			    return null;
+
+		    return Utilities.NullableEnumFrom<LongPollEventTypes>(response);
+	    }
+
 		public static implicit operator PageAccessKind?(VkResponse response)
 	    {
 		    if (response == null)

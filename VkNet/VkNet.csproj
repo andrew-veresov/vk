@@ -114,6 +114,8 @@
     <Compile Include="Enums\FriendStatus.cs" />
     <Compile Include="Enums\GroupPublicity.cs" />
     <Compile Include="Enums\LifeMain.cs" />
+    <Compile Include="Enums\LongPollEventTypes.cs" />
+    <Compile Include="Enums\LongPollMods.cs" />
     <Compile Include="Enums\MessageReadState.cs" />
     <Compile Include="Enums\MessagesFilter.cs" />
     <Compile Include="Enums\MessageType.cs" />
@@ -156,6 +158,8 @@
     <Compile Include="Exception\UserAuthorizationFailException.cs" />
     <Compile Include="Exception\VkApiMethodInvokeException.cs" />
     <Compile Include="Categories\FriendsCategory.cs" />
+    <Compile Include="Model\LongPollEvents\NewMessageEvent.cs" />
+    <Compile Include="Model\LongPollEvents\LongPollEventBase.cs" />
     <Compile Include="Model\LongPollHistoryResponse.cs" />
     <Compile Include="Model\LongPollResponse.cs" />
     <Compile Include="Utils\ICaptchaSolver.cs" />
@@ -284,6 +288,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>$(TargetDir)Injector.exe</PostBuildEvent>

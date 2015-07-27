@@ -359,6 +359,29 @@ namespace VkNet
             
 			return Call(methodName, parameters, skipAuthorization);
 	    }
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+	    internal VkResponse CallLongPoll(string server, VkParameters parameters, bool skipAuthorization = false, string apiVersion = null)
+	    {
+		    if (!parameters.ContainsKey("v"))
+		    {
+			    if (!string.IsNullOrEmpty(apiVersion))
+					parameters.Add("v", apiVersion);
+				else
+				{
+					//TODO: WARN: раскомментировать после добавления аннотаций ко всем методам
+					//throw new InvalidParameterException("You must use ApiVersionAttribute except adding \"v\" parameter to VkParameters");
+				}
+		    }
+		    else
+		    {
+				//TODO: WARN: раскомментировать, исправив ошибки в существующем коде
+				//throw new InvalidParameterException("You must use ApiVersionAttribute except adding \"v\" parameter to VkParameters");
+		    }
+            
+			return CallLongPoll(server, parameters, skipAuthorization);
+	    }
+
 		[MethodImpl(MethodImplOptions.NoInlining)]
 	    internal Task<VkResponse> CallAsync(string methodName, VkParameters parameters, bool skipAuthorization = false, string apiVersion = null)
 	    {
@@ -425,6 +448,19 @@ namespace VkNet
 
             // Если в ответе есть поле count (счетчик общего числа объектов, которые можно запросить), сохраняем его.
             CountFromLastResponse = vkResponse["count"];
+
+            return vkResponse;
+        }
+
+	    private VkResponse CallLongPoll(string server, VkParameters parameters,  bool skipAuthorization = false)
+	    {
+	        string answer = null;
+
+            answer = InvokeLongPoll(server, parameters, skipAuthorization);
+
+            JObject rawResponse = JObject.Parse(answer);
+
+            VkResponse vkResponse = new VkResponse(rawResponse) { RawJson = answer };
 
             return vkResponse;
         }
@@ -519,6 +555,40 @@ namespace VkNet
         /// <param name="skipAuthorization">Флаг, что метод можно вызывать без авторизации.</param>
         /// <returns>Ответ сервера в формате JSON.</returns>
         [CanBeNull]
+        public string InvokeLongPoll(string server, IDictionary<string, string> parameters, bool skipAuthorization = false)
+        {
+            if (!skipAuthorization)
+                IfNotAuthorizedThrowException();
+
+            // проверка на не более 3-х запросов в секунду
+            TimeSpan span;
+            if (LastInvokeTime.HasValue && (span = LastInvokeTimeSpan.Value).TotalMilliseconds < _minInterval)
+            {
+                System.Threading.Thread.Sleep(_minInterval - (int)span.TotalMilliseconds);
+            }
+
+            string url = GetLongPollUrl(server, parameters);
+            
+            string answer = Browser.GetJson(url);
+            LastInvokeTime = DateTimeOffset.Now;
+            
+#if DEBUG && !UNIT_TEST
+            Trace.WriteLine(Utilities.PreetyPrintApiUrl(url));
+            Trace.WriteLine(Utilities.PreetyPrintJson(answer));
+#endif
+            VkErrors.IfErrorThrowException(answer);
+
+            return answer;
+        }
+
+        /// <summary>
+        /// Прямой вызов API-метода
+        /// </summary>
+        /// <param name="methodName">Название метода. Например, "wall.get".</param>
+        /// <param name="parameters">Вход. параметры метода.</param>
+        /// <param name="skipAuthorization">Флаг, что метод можно вызывать без авторизации.</param>
+        /// <returns>Ответ сервера в формате JSON.</returns>
+        [CanBeNull]
         public async Task<string> InvokeAsync(string methodName, IDictionary<string, string> parameters, bool skipAuthorization = false)
         {
             if (!skipAuthorization)
@@ -545,10 +615,24 @@ namespace VkNet
             return answer;
         }
 
-        internal string GetApiUrl(string methodName, IDictionary<string, string> values)
+        internal string GetLongPollUrl(string server, IDictionary<string, string> values)
         {
             var builder = new StringBuilder();
 
+            builder.AppendFormat("{0}{1}?", "http://", server);
+
+            foreach (var pair in values)
+                builder.AppendFormat("{0}={1}&", pair.Key, pair.Value);
+
+            builder.AppendFormat("access_token={0}", AccessToken);
+
+            return builder.ToString();
+        }
+
+        internal string GetApiUrl(string methodName, IDictionary<string, string> values)
+        {
+            var builder = new StringBuilder();
+            
             builder.AppendFormat("{0}{1}?", "https://api.vk.com/method/", methodName);
 
             foreach (var pair in values)

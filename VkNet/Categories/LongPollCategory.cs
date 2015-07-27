@@ -4,14 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using VkNet.Enums;
 using VkNet.Enums.Filters;
 using VkNet.Model;
+using VkNet.Model.LongPollEvents;
 using VkNet.Utils;
 
 namespace VkNet.Categories
 {
     public class LongPollCategory: BaseCategory
     {
+        public const int DefaultWaitTime = 25;
         public LongPollCategory(VkApi vk): base(vk)
         {
         }
@@ -29,9 +32,13 @@ namespace VkNet.Categories
         /// Страница документации ВКонтакте <see href="http://vk.com/dev/messages.getLongPollServer"/>.
         /// </remarks>
         [Pure]
-        public LongPollServerResponse GetLongPollServer()
+        public LongPollServerResponse GetLongPollServer(bool? needPts = null)
         {
-            return _vk.Call("messages.getLongPollServer", VkParameters.Empty);
+            var parameters = new VkParameters
+                             {
+                                 { "need_pts", needPts }
+                             };
+            return _vk.Call("messages.getLongPollServer", parameters);
         }
 
         /// <summary>
@@ -58,7 +65,7 @@ namespace VkNet.Categories
         /// </remarks>
         [Pure]
         [ApiVersion("5.29")]
-        internal async Task<LongPollHistoryResponse> GetLongPollHistoryAsync(long ts, long pts,
+        public async Task<LongPollHistoryResponse> GetLongPollHistoryAsync(long ts, long pts,
             int? previewLength = null,
             bool? onlines = null,
             ProfileFields fields = null,
@@ -115,7 +122,7 @@ namespace VkNet.Categories
         /// </remarks>
         [Pure]
         [ApiVersion("5.29")]
-        internal LongPollHistoryResponse GetLongPollHistory(long ts, 
+        public LongPollHistoryResponse GetLongPollHistory(long ts, 
             long? pts = null,
             int? previewLength = null,
             bool? onlines = null,
@@ -140,7 +147,7 @@ namespace VkNet.Categories
 
             bool hasMoreMessages = response.ContainsKey("more") && response["more"] == 1;
             var messages = response["messages"].ToReadOnlyCollectionOf<Message>(r => r);
-            var newPts = (long)response["new_pts"];
+            var newPts = (long?)response["new_pts"];
 
             var result = new LongPollHistoryResponse()
             {
@@ -148,6 +155,31 @@ namespace VkNet.Categories
                 Messages = messages,
                 Pts = newPts
             };
+            return result;
+        }
+
+        public LongPollResponse GetLongPollEvents(string server, string key, long ts, LongPollMods mods = LongPollMods.IncludeAttachemnts)
+        {
+            var parameters = new VkParameters
+                             {
+                                 { "act", "a_check" },
+                                 { "key", key },
+                                 { "ts", ts },
+                                 { "wait", DefaultWaitTime }
+                             };
+
+            VkResponse response = _vk.CallLongPoll(server, parameters);
+
+            var result = new LongPollResponse()
+            {
+                Ts = response["ts"]
+            };
+            var events = response["updates"]
+                .ToReadOnlyCollectionOf<VkResponseArray>(u => u)
+                .Select(LongPollEventBase.FromArray)
+                .Where(e => e != null)
+                .ToReadOnlyCollection();
+            result.Events = events;
             return result;
         }
     }

@@ -14,6 +14,6 @@ namespace VkNet.Model
         public ReadOnlyCollection<object> History {get { throw new NotImplementedException(); } }
         public ReadOnlyCollection<Message> Messages { get; internal set; }
         public bool HasMoreMessages { get; internal set; }
-        public long Pts { get; internal set; }
+        public long? Pts { get; internal set; }
     }
 }
